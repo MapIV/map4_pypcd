@@ -40,8 +40,10 @@ __docformat__ = "restructuredtext en"
 
 import numpy as np
 
-from sensor_msgs.msg import PointField
-from sensor_msgs.msg import PointCloud2
+from rosbags.typesys.types import sensor_msgs__msg__PointField as PointField
+from rosbags.typesys.types import sensor_msgs__msg__PointCloud2 as PointCloud2
+# from sensor_msgs.msg import PointField
+# from sensor_msgs.msg import PointCloud2
 
 # prefix to the names of dummy fields we add to get byte alignment correct. this needs to not
 # clash with any actual field names
