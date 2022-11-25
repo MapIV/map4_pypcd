@@ -3,9 +3,6 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
 requirements = ['numpy', 'python-lzf']
 
 setup_requirements = []
@@ -20,7 +17,7 @@ setup(
     description="Read and write PCL .pcd files in python.",
     install_requires=requirements,
     license="BSD license",
-    long_description=readme + '\n\n' + history,
+    long_description="Map4 fork of Pypcd",
     include_package_data=True,
     keywords='pypcd',
     name='pypcd',
