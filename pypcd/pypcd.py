@@ -277,6 +277,8 @@ def point_cloud_from_fileobj(f):
             metadata = parse_header(header)
             dtype = _build_dtype(metadata)
             break
+    if metadata['data'] == 'binaryscompressed':
+        metadata['data'] = 'binary_compressed'
     if metadata['data'] == 'ascii':
         pc_data = parse_ascii_pc_data(f, dtype, metadata)
     elif metadata['data'] == 'binary':
