@@ -160,9 +160,9 @@ def _metadata_is_consistent(metadata):
     checks.append((lambda m: len(m['type']) == len(m['count']) ==
                    len(m['fields']),
                    'length of type, count and fields must be equal'))
-    checks.append((lambda m: m['height'] > 0,
+    checks.append((lambda m: m['height'] >= 0,
                    'height must be greater than 0'))
-    checks.append((lambda m: m['width'] > 0,
+    checks.append((lambda m: m['width'] >= 0,
                    'width must be greater than 0'))
     checks.append((lambda m: m['points'] > 0,
                    'points must be greater than 0'))
@@ -204,7 +204,7 @@ def _build_dtype(metadata):
         else:
             fieldnames.extend(['%s_%04d' % (f, i) for i in range(c)])
             typenames.extend([np_type]*c)
-    dtype = np.dtype(list(zip(fieldnames, typenames)))
+    dtype = np.dtype([x for x in zip(fieldnames, typenames)])
     return dtype
 
 
@@ -269,7 +269,7 @@ def point_cloud_from_fileobj(f):
     """
     header = []
     while True:
-        ln = f.readline().strip()
+        ln = f.readline().strip().decode(encoding='utf-8')
         if not isinstance(ln, str):
             ln = ln.decode('utf-8')
         header.append(ln)
@@ -315,6 +315,8 @@ def point_cloud_to_fileobj(pc, fileobj, data_compression=None):
         metadata['data'] = data_compression
 
     header = write_header(metadata).encode('utf-8')
+    if data_compression == 'binary':
+        header = str.encode(header)
     fileobj.write(header)
     if metadata['data'].lower() == 'ascii':
         fmtstr = build_ascii_fmtstr(pc)
@@ -351,7 +353,7 @@ def point_cloud_to_fileobj(pc, fileobj, data_compression=None):
 
 
 def point_cloud_to_path(pc, fname):
-    with open(fname, 'w') as f:
+    with open(fname, 'wb') as f:
         point_cloud_to_fileobj(pc, f)
 
 
@@ -577,10 +579,10 @@ def decode_rgb_from_pcl(rgb):
     return rgb_arr
 
 
-def make_xyz_label_point_cloud(xyzl, label_type='f'):
+def make_xyz_label_point_cloud(xyzl, label_type='f', label='label'):
     """ TODO i labels? """
     md = {'version': .7,
-          'fields': ['x', 'y', 'z', 'label'],
+          'fields': ['x', 'y', 'z', label],
           'count': [1, 1, 1, 1],
           'width': len(xyzl),
           'height': 1,
@@ -624,7 +626,7 @@ class PointCloud(object):
         md = self.get_metadata()
         assert(_metadata_is_consistent(md))
         assert(len(self.pc_data) == self.points)
-        assert(self.width*self.height == self.points)
+        # assert(self.width*self.height == self.points)
         assert(len(self.fields) == len(self.count))
         assert(len(self.fields) == len(self.type))
 
