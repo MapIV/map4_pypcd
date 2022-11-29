@@ -553,6 +553,54 @@ def make_xyz_rgb_point_cloud(xyz_rgb, metadata=None):
     pc = PointCloud(md, pc_data)
     return pc
 
+def make_xyzi_point_cloud(xyzi, metadata=None):
+    """ Make a pointcloud object from xyz array.
+    xyz array is assumed to be float32.
+    intensity is assumed to be int8
+    """
+    md = {'version': .7,
+          'fields': ['x', 'y', 'z', 'intensity'],
+          'count': [1, 1, 1, 1],
+          'width': len(xyzi),
+          'height': 1,
+          'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+          'points': len(xyzi),
+          'type': ['F', 'F', 'F', 'U'],
+          'size': [4, 4, 4, 1],
+          'data': 'binary'}
+    if metadata is not None:
+        md.update(metadata)
+    # pc_data = xyzi_float.view(np.dtype([('x', np.float32),
+    #                                     ('y', np.float32),
+    #                                     ('z', np.float32),
+    #                                     ('intensity', np.uint8)])).squeeze()
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1')]
+    pc_data = np.rec.fromarrays([xyzi[:,0], xyzi[:,1], xyzi[:,2], xyzi[:,3]], dtype=dt)
+    pc = PointCloud(md, pc_data)
+    return pc
+
+def make_xyzir_point_cloud(xyzir, metadata=None):
+    """ Make a pointcloud object from xyz array.
+    xyz array is assumed to be float32.
+    intensity and ring is assumed to be int8
+    """
+    md = {'version': .7,
+          'fields': ['x', 'y', 'z', 'intensity', 'ring'],
+          'count': [1, 1, 1, 1, 1],
+          'width': len(xyzir),
+          'height': 1,
+          'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+          'points': len(xyzir),
+          'type': ['F', 'F', 'F', 'U', 'U'],
+          'size': [4, 4, 4, 1, 2],
+          'data': 'binary'}
+    if metadata is not None:
+        md.update(metadata)
+
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('ring', '<u2')]
+    pc_data = np.rec.fromarrays([xyzir[:, 0], xyzir[:, 1], xyzir[:, 2], xyzir[:, 3], xyzir[:, 4]], dtype=dt)
+    pc = PointCloud(md, pc_data)
+    return pc
 
 def encode_rgb_for_pcl(rgb):
     """ Input is Nx3 uint8 array with RGB values.
