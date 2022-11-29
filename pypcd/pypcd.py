@@ -515,12 +515,8 @@ def make_xyz_point_cloud(xyz, metadata=None):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    xyz = xyz.astype(np.float32)
-    pc_data = xyz.view(np.dtype([('x', np.float32),
-                                 ('y', np.float32),
-                                 ('z', np.float32)]))
-    # pc_data = np.rec.fromarrays([xyz[:,0], xyz[:,1], xyz[:,2]], dtype=dt)
-    # data = np.rec.fromarrays([xyz.T], dtype=dt)
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4')]
+    pc_data = np.rec.fromarrays([xyz[:, 0], xyz[:, 1], xyz[:, 2]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
@@ -548,8 +544,6 @@ def make_xyz_rgb_point_cloud(xyz_rgb, metadata=None):
                                      ('y', np.float32),
                                      ('z', np.float32),
                                      ('rgb', np.float32)])).squeeze()
-    # pc_data = np.rec.fromarrays([xyz[:,0], xyz[:,1], xyz[:,2]], dtype=dt)
-    # data = np.rec.fromarrays([xyz.T], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
@@ -570,10 +564,6 @@ def make_xyzi_point_cloud(xyzi, metadata=None):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    # pc_data = xyzi_float.view(np.dtype([('x', np.float32),
-    #                                     ('y', np.float32),
-    #                                     ('z', np.float32),
-    #                                     ('intensity', np.uint8)])).squeeze()
     dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1')]
     pc_data = np.rec.fromarrays([xyzi[:,0], xyzi[:,1], xyzi[:,2], xyzi[:,3]], dtype=dt)
     pc = PointCloud(md, pc_data)
@@ -596,7 +586,6 @@ def make_xyzir_point_cloud(xyzir, metadata=None):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-
     dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('ring', '<u2')]
     pc_data = np.rec.fromarrays([xyzir[:, 0], xyzir[:, 1], xyzir[:, 2], xyzir[:, 3], xyzir[:, 4]], dtype=dt)
     pc = PointCloud(md, pc_data)
