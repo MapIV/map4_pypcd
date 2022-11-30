@@ -42,6 +42,7 @@ import numpy as np
 
 from rosbags.typesys.types import sensor_msgs__msg__PointField as PointField
 from rosbags.typesys.types import sensor_msgs__msg__PointCloud2 as PointCloud2
+from rosbags.typesys.types import std_msgs__msg__Header as Header
 # from sensor_msgs.msg import PointField
 # from sensor_msgs.msg import PointCloud2
 
@@ -112,11 +113,12 @@ def arr_to_fields(cloud_arr):
     fields = []
     for field_name in cloud_arr.dtype.names:
         np_field_type, field_offset = cloud_arr.dtype.fields[field_name]
-        pf = PointField()
-        pf.name = field_name
-        pf.datatype = nptype_to_pftype[np_field_type]
-        pf.offset = field_offset
-        pf.count = 1 # is this ever more than one?
+        pf = PointField(
+            name=field_name,
+            datatype=nptype_to_pftype[np_field_type],
+            offset=field_offset,
+            count=1
+        )
         fields.append(pf)
     return fields
 
@@ -215,20 +217,18 @@ def array_to_pointcloud2(cloud_arr, stamp=None, frame_id=None, merge_rgb=False):
     # make it 2d (even if height will be 1)
     cloud_arr = np.atleast_2d(cloud_arr)
 
-    cloud_msg = PointCloud2()
-
-    if stamp is not None:
-        cloud_msg.header.stamp = stamp
-    if frame_id is not None:
-        cloud_msg.header.frame_id = frame_id
-    cloud_msg.height = cloud_arr.shape[0]
-    cloud_msg.width = cloud_arr.shape[1]
-    cloud_msg.fields = arr_to_fields(cloud_arr)
-    cloud_msg.is_bigendian = False # assumption
-    cloud_msg.point_step = cloud_arr.dtype.itemsize
-    cloud_msg.row_step = cloud_msg.point_step*cloud_arr.shape[1]
-    cloud_msg.is_dense = all([np.isfinite(cloud_arr[fname]).all() for fname in cloud_arr.dtype.names])
-    cloud_msg.data = cloud_arr.tostring()
+    cloud_msg = PointCloud2(
+        header=Header(stamp=stamp,
+                      frame_id=frame_id),
+        height=cloud_arr.shape[0],
+        width=cloud_arr.shape[1],
+        fields=arr_to_fields(cloud_arr),
+        is_bigendian=False,  # assumption
+        point_step=cloud_arr.dtype.itemsize,
+        row_step=cloud_arr.dtype.itemsize * cloud_arr.shape[1],
+        is_dense=all([np.isfinite(cloud_arr[fname]).all() for fname in cloud_arr.dtype.names]),
+        data=cloud_arr.tostring()
+    )
     return cloud_msg
 
 def merge_rgb_fields(cloud_arr):
