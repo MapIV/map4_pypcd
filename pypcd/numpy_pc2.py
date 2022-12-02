@@ -134,7 +134,10 @@ def pointcloud2_to_array(cloud_msg, split_rgb=False, remove_padding=True):
     dtype_list = pointcloud2_to_dtype(cloud_msg)
 
     # parse the cloud into an array
-    cloud_arr = np.fromstring(cloud_msg.data, dtype_list)
+    if not isinstance(cloud_msg.data, bytes):
+        cloud_arr = np.fromstring(cloud_msg.data.tostring(), dtype_list)
+    else:
+        cloud_arr = np.fromstring(cloud_msg.data, dtype_list)
 
     # remove the dummy fields that were added
     if remove_padding:
