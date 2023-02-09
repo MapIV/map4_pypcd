@@ -1,4 +1,5 @@
 Map4 fork of PyPCD module.
+Install through pip+ssh: `pip install git+ssh://git@github.com/MapIV/pypcd.git`
 
 ``pypcd``
 =======
