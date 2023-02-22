@@ -21,7 +21,7 @@ setup(
     include_package_data=True,
     keywords='pypcd',
     name='pypcd',
-    packages=find_packages(include=['pypcd']),
+    packages=['pypcd'],
     setup_requires=setup_requirements,
     url='https://github.com/map4/pypcd',
     version='0.1.2',
