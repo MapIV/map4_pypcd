@@ -1,5 +1,6 @@
 Map4 fork of PyPCD module.
-Install through pip+ssh: `pip install git+ssh://git@github.com/MapIV/pypcd.git`
+
+I suggest you just `git clone` and `python setup.py install` though it is also possible through pip+ssh: `pip install git+ssh://git@github.com/MapIV/pypcd.git`
 
 ``pypcd``
 =======
