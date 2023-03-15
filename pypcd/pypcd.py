@@ -395,7 +395,7 @@ def save_xyz_label(pc, fname, use_default_lbl=False):
     if not use_default_lbl and ('label' not in md['fields']):
         raise Exception('label is not a field in this point cloud')
     with open(fname, 'w') as f:
-        for i in xrange(pc.points):
+        for i in range(pc.points):
             x, y, z = ['%.4f' % d for d in (
                 pc.pc_data['x'][i], pc.pc_data['y'][i], pc.pc_data['z'][i]
                 )]
@@ -410,7 +410,7 @@ def save_xyz_intensity_label(pc, fname, use_default_lbl=False):
     if 'intensity' not in md['fields']:
         raise Exception('intensity is not a field in this point cloud')
     with open(fname, 'w') as f:
-        for i in xrange(pc.points):
+        for i in range(pc.points):
             x, y, z = ['%.4f' % d for d in (
                 pc.pc_data['x'][i], pc.pc_data['y'][i], pc.pc_data['z'][i]
                 )]
@@ -429,7 +429,7 @@ def save_txt(pc, fname, header=True):
                 if cnt == 1:
                     header_lst.append(field_name)
                 else:
-                    for c in xrange(cnt):
+                    for c in range(cnt):
                         header_lst.append('%s_%04d' % (field_name, c))
             f.write(' '.join(header_lst)+'\n')
         fmtstr = build_ascii_fmtstr(pc)
@@ -471,7 +471,7 @@ def add_fields(pc, metadata, pc_data):
             fieldnames.append(f)
             typenames.append(np_type)
         else:
-            fieldnames.extend(['%s_%04d' % (f, i) for i in xrange(c)])
+            fieldnames.extend(['%s_%04d' % (f, i) for i in range(c)])
             typenames.extend([np_type]*c)
     dtype = list(zip(fieldnames, typenames))
     # new dtype. could be inferred?
@@ -621,6 +621,36 @@ def make_xyzi_label_point_cloud(xyzil, metadata=None, label_type='u', label='lab
     if metadata is not None:
         md.update(metadata)
     pc_data = np.rec.fromarrays([xyzil[:, 0], xyzil[:, 1], xyzil[:, 2], xyzil[:, 3], xyzil[:, 4]], dtype=dt)
+    pc = PointCloud(md, pc_data)
+    return pc
+
+def make_xyzirgb_label_point_cloud(xyzilrgb, metadata=None, label_type='u', label='label'):
+    """ Make a pointcloud object from xyz array.
+    xyz array is assumed to be float32.
+    intensity int8
+    label is assumed to be int8 ('U') but can be float32 ('F') through label_type
+    """
+    md = {'version': .7,
+          'fields': ['x', 'y', 'z', 'intensity', 'rgb', label],
+          'count': [1, 1, 1, 1, 1],
+          'width': len(xyzilrgb),
+          'height': 1,
+          'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+          'points': len(xyzilrgb),
+          'data': 'binary'}
+    if label_type.lower() == 'f':
+        md['size'] = [4, 4, 4, 1, 4, 4]
+        md['type'] = ['F', 'F', 'F', 'U', 'F', 'F']
+        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('rgb', '<f4'), ('label', '<f4')]
+    elif label_type.lower() == 'u':
+        md['size'] = [4, 4, 4, 1, 4, 1]
+        md['type'] = ['F', 'F', 'F', 'U', 'F', 'U']
+        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('rgb', '<f4'), ('label', 'u1')]
+    else:
+        raise ValueError('label type must be F or U')
+    if metadata is not None:
+        md.update(metadata)
+    pc_data = np.rec.fromarrays([xyzilrgb[:, 0], xyzilrgb[:, 1], xyzilrgb[:, 2], xyzilrgb[:, 3], xyzilrgb[:, 4], xyzilrgb[:, 5]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
