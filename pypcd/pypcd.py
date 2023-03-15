@@ -632,7 +632,7 @@ def make_xyzirgb_label_point_cloud(xyzilrgb, metadata=None, label_type='u', labe
     """
     md = {'version': .7,
           'fields': ['x', 'y', 'z', 'intensity', 'rgb', label],
-          'count': [1, 1, 1, 1, 1],
+          'count': [1, 1, 1, 1, 1, 1],
           'width': len(xyzilrgb),
           'height': 1,
           'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
