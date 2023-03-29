@@ -539,14 +539,10 @@ def make_xyz_rgb_point_cloud(xyz_rgb, metadata=None):
           'type': ['F', 'F', 'F', 'F'],
           'size': [4, 4, 4, 4],
           'data': 'binary'}
-    if xyz_rgb.dtype != np.float32:
-        raise ValueError('array must be float32')
     if metadata is not None:
         md.update(metadata)
-    pc_data = xyz_rgb.view(np.dtype([('x', np.float32),
-                                     ('y', np.float32),
-                                     ('z', np.float32),
-                                     ('rgb', np.float32)])).squeeze()
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('rgb', '<f4')]
+    pc_data = np.rec.fromarrays([xyz_rgb[:, 0], xyz_rgb[:, 1], xyz_rgb[:, 2], xyz_rgb[:, 3]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
