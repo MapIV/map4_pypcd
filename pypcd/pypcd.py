@@ -501,6 +501,18 @@ def cat_point_clouds(pc1, pc2):
     pc3 = PointCloud(new_metadata, new_data)
     return pc3
 
+def get_type_information(data_type):
+    """get data type information for saving pointclouds in data structures
+       data_type = 'u' for uint
+       data_type = 'f' for float
+    """
+    if data_type.lower() == 'u' or data_type.lower() == 'uint':
+        d_size, d_type, d_dt = '1', 'U', 'u1'
+    elif data_type.lower() == 'f' or data_type.lower() == 'float':
+        d_size, d_type, d_dt = '4', 'F', '<f4'
+    else:
+        raise ValueError("data type must be 'f' or 'u'")
+    return d_size, d_type, d_dt
 
 def make_xyz_point_cloud(xyz, metadata=None):
     """ Make a pointcloud object from xyz array.
@@ -551,6 +563,7 @@ def make_xyzi_point_cloud(xyzi, metadata=None, intensity_type='u'):
     xyz array is assumed to be float32.
     intensity is assumed to be int8 ('u') or float32 ('f')
     """
+    int_size, int_type, int_dt = get_type_information(intensity_type)
     md = {'version': .7,
           'fields': ['x', 'y', 'z', 'intensity'],
           'count': [1, 1, 1, 1],
@@ -558,21 +571,22 @@ def make_xyzi_point_cloud(xyzi, metadata=None, intensity_type='u'):
           'height': 1,
           'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
           'points': len(xyzi),
-          'type': ['F', 'F', 'F', 'U'],
-          'size': [4, 4, 4, 1],
+          'type': ['F', 'F', 'F', int_type],
+          'size': [4, 4, 4, int_size],
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1')]
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt)]
     pc_data = np.rec.fromarrays([xyzi[:,0], xyzi[:,1], xyzi[:,2], xyzi[:,3]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
-def make_xyzir_point_cloud(xyzir, metadata=None):
+def make_xyzir_point_cloud(xyzir, metadata=None, intensity_type='u'):
     """ Make a pointcloud object from xyz array.
     xyz array is assumed to be float32.
     intensity and ring is assumed to be int8
     """
+    int_size, int_type, int_dt = get_type_information(intensity_type)
     md = {'version': .7,
           'fields': ['x', 'y', 'z', 'intensity', 'ring'],
           'count': [1, 1, 1, 1, 1],
@@ -580,22 +594,24 @@ def make_xyzir_point_cloud(xyzir, metadata=None):
           'height': 1,
           'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
           'points': len(xyzir),
-          'type': ['F', 'F', 'F', 'U', 'U'],
-          'size': [4, 4, 4, 1, 2],
+          'type': ['F', 'F', 'F', int_type, 'U'],
+          'size': [4, 4, 4, int_size, 2],
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('ring', '<u2')]
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2')]
     pc_data = np.rec.fromarrays([xyzir[:, 0], xyzir[:, 1], xyzir[:, 2], xyzir[:, 3], xyzir[:, 4]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
-def make_xyzi_label_point_cloud(xyzil, metadata=None, label_type='u', label='label'):
+def make_xyzi_label_point_cloud(xyzil, metadata=None, intensity_type='u', label_type='u', label='label'):
     """ Make a pointcloud object from xyz array.
     xyz array is assumed to be float32.
     intensity int8
     label is assumed to be int8 ('U') but can be float32 ('F') through label_type
     """
+    int_size, int_type, int_dt = get_type_information(intensity_type)
+    label_size, label_type, label_dt = get_type_information(label_type)
     md = {'version': .7,
           'fields': ['x', 'y', 'z', 'intensity', label],
           'count': [1, 1, 1, 1, 1],
@@ -603,29 +619,25 @@ def make_xyzi_label_point_cloud(xyzil, metadata=None, label_type='u', label='lab
           'height': 1,
           'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
           'points': len(xyzil),
+          'type': ['F', 'F', 'F', int_type, label_type],
+          'size': [4, 4, 4, int_size, label_size],
           'data': 'binary'}
-    if label_type.lower() == 'f':
-        md['size'] = [4, 4, 4, 1, 4]
-        md['type'] = ['F', 'F', 'F', 'U', 'F']
-        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('label', '<f4')]
-    elif label_type.lower() == 'u':
-        md['size'] = [4, 4, 4, 1, 1]
-        md['type'] = ['F', 'F', 'F', 'U', 'U']
-        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('label', 'u1')]
-    else:
-        raise ValueError('label type must be F or U')
     if metadata is not None:
         md.update(metadata)
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('label', label_dt)]
     pc_data = np.rec.fromarrays([xyzil[:, 0], xyzil[:, 1], xyzil[:, 2], xyzil[:, 3], xyzil[:, 4]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
 
-def make_xyzirgb_label_point_cloud(xyzilrgb, metadata=None, label_type='u', label='label'):
+
+def make_xyzirgb_label_point_cloud(xyzilrgb, metadata=None, intensity_type='u', label_type='u', label='label'):
     """ Make a pointcloud object from xyz array.
     xyz array is assumed to be float32.
     intensity int8
     label is assumed to be int8 ('U') but can be float32 ('F') through label_type
     """
+    int_size, int_type, int_dt = get_type_information(intensity_type)
+    label_size, label_type, label_dt = get_type_information(label_type)
     md = {'version': .7,
           'fields': ['x', 'y', 'z', 'intensity', 'rgb', label],
           'count': [1, 1, 1, 1, 1, 1],
@@ -633,22 +645,16 @@ def make_xyzirgb_label_point_cloud(xyzilrgb, metadata=None, label_type='u', labe
           'height': 1,
           'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
           'points': len(xyzilrgb),
+          'size': [4, 4, 4, int_size, 4, label_size],
+          'type': ['F', 'F', 'F', int_type, 'F', label_type],
           'data': 'binary'}
-    if label_type.lower() == 'f':
-        md['size'] = [4, 4, 4, 1, 4, 4]
-        md['type'] = ['F', 'F', 'F', 'U', 'F', 'F']
-        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('rgb', '<f4'), ('label', '<f4')]
-    elif label_type.lower() == 'u':
-        md['size'] = [4, 4, 4, 1, 4, 1]
-        md['type'] = ['F', 'F', 'F', 'U', 'F', 'U']
-        dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', 'u1'), ('rgb', '<f4'), ('label', 'u1')]
-    else:
-        raise ValueError('label type must be F or U')
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('rgb', '<f4'), ('label', label_dt)]
     if metadata is not None:
         md.update(metadata)
     pc_data = np.rec.fromarrays([xyzilrgb[:, 0], xyzilrgb[:, 1], xyzilrgb[:, 2], xyzilrgb[:, 3], xyzilrgb[:, 4], xyzilrgb[:, 5]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
+
 
 def encode_rgb_for_pcl(rgb):
     """ Input is Nx3 uint8 array with RGB values.
