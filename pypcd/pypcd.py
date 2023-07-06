@@ -372,7 +372,7 @@ def save_point_cloud(pc, fname):
     """ save pointcloud to fname in ascii format
     """
     with open(fname, 'wb') as f:
-        point_cloud_to_fileobj(pc, f, 'ascii')
+        point_cloud_to_fileobj(pc, f, 'binary_compressed')
 
 
 def save_point_cloud_bin(pc, fname):
