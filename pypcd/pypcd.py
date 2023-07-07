@@ -734,7 +734,7 @@ class PointCloud(object):
         assert(len(self.fields) == len(self.type))
 
     def save(self, fname):
-        self.save_pcd(fname, 'ascii')
+        self.save_pcd(fname, 'binary_compressed')
 
     def save_pcd(self, fname, compression=None, **kwargs):
         if 'data_compression' in kwargs:
