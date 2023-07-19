@@ -604,6 +604,31 @@ def make_xyzir_point_cloud(xyzir, metadata=None, intensity_type='u'):
     pc = PointCloud(md, pc_data)
     return pc
 
+def make_xyzirt_point_cloud(xyzirt, metadata=None, intensity_type='f'):
+    """ Make a pointcloud object from xyz array.
+    xyz array is assumed to be float32.
+    intensity is assumed to be float32.
+    ring is assumed to be uint16.
+    time is assumed to be float32.
+    """
+    int_size, int_type, int_dt = get_type_information(intensity_type)
+    md = {'version': .7,
+          'fields': ['x', 'y', 'z', 'intensity', 'ring', 'time'],
+          'count': [1, 1, 1, 1, 1, 1],
+          'width': len(xyzirt),
+          'height': 1,
+          'viewpoint': [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+          'points': len(xyzirt),
+          'type': ['F', 'F', 'F', int_type, 'U', 'F'],
+          'size': [4, 4, 4, int_size, 2, 4],
+          'data': 'binary'}
+    if metadata is not None:
+        md.update(metadata)
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2')]
+    pc_data = np.rec.fromarrays([xyzirt[:, 0], xyzirt[:, 1], xyzirt[:, 2], xyzirt[:, 3], xyzirt[:, 4], xyzirt[:, 5]], dtype=dt)
+    pc = PointCloud(md, pc_data)
+    return pc
+
 def make_xyzi_label_point_cloud(xyzil, metadata=None, intensity_type='u', label_type='u', label='label'):
     """ Make a pointcloud object from xyz array.
     xyz array is assumed to be float32.
