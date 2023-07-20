@@ -600,7 +600,7 @@ def make_xyzir_point_cloud(xyzir, metadata=None, intensity_type='u'):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2'), ('time', '<f4')]
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2')]
     pc_data = np.rec.fromarrays([xyzir[:, 0], xyzir[:, 1], xyzir[:, 2], xyzir[:, 3], xyzir[:, 4]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
@@ -625,7 +625,7 @@ def make_xyzirt_point_cloud(xyzirt, metadata=None, intensity_type='f'):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2')]
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2'), ('time', '<f4')]
     pc_data = np.rec.fromarrays([xyzirt[:, 0], xyzirt[:, 1], xyzirt[:, 2], xyzirt[:, 3], xyzirt[:, 4], xyzirt[:, 5]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
