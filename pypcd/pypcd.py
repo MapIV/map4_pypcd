@@ -600,7 +600,7 @@ def make_xyzir_point_cloud(xyzir, metadata=None, intensity_type='u'):
           'data': 'binary'}
     if metadata is not None:
         md.update(metadata)
-    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2')]
+    dt = [('x', '<f4'), ('y', '<f4'), ('z', '<f4'), ('intensity', int_dt), ('ring', '<u2'), ('time', '<f4')]
     pc_data = np.rec.fromarrays([xyzir[:, 0], xyzir[:, 1], xyzir[:, 2], xyzir[:, 3], xyzir[:, 4]], dtype=dt)
     pc = PointCloud(md, pc_data)
     return pc
