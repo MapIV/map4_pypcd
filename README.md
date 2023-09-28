@@ -1,3 +1,5 @@
+This project is archived! Use: https://github.com/MapIV/pypcd4
+
 # Map4 Fork of PyPCD module.
 "Forked" from [Original PyPCD](https://github.com/dimatura/pypcd).
 
